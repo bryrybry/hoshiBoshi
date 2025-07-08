@@ -1,0 +1,24 @@
+.grid {
+    height: 100%;
+    aspect-ratio: 1;
+    display: grid;
+}
+
+.cell {
+    background: transparent;
+    color: white;
+    user-select: none;
+    -webkit-user-drag: none;
+    cursor: default;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell.clickable {
+    cursor: pointer;
+}
+
+.border {
+    background: rgba(255, 255, 255, 0.5);
+}

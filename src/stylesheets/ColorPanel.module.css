@@ -1,0 +1,18 @@
+.colorPanel {
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw;
+}
+
+.colorPanel > * {
+    height: 4vh;
+    aspect-ratio: 1;
+    border-radius: 50%;
+}
+
+.colorCircle.selected {
+    border: 0.5vh solid white;
+}
