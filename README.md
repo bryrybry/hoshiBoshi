@@ -6,9 +6,9 @@
 get node.js https://nodejs.org
 
 ### 2. 
-git clone https://github.com/bryrybry/hoshiBoshi.git
-cd hoshiBoshi
-npm install
+git clone https://github.com/bryrybry/hoshiBoshi.git  
+cd hoshiBoshi  
+npm install  
 npm run dev
 
 ### 3. 
