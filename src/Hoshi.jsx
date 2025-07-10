@@ -4,7 +4,7 @@ import Grid from './Grid.jsx';
 import TopText from './TopText.jsx';
 import ColorPanel from './ColorPanel.jsx';
 import styles from './stylesheets/Hoshi.module.css'
-import { main } from './Solver.js';
+import { solve } from './Solver.js';
 
 // TEMPORARY:
 import seedrandom from 'seedrandom';
@@ -45,7 +45,7 @@ const Hoshi = () => {
 
   function onSolveButtonClick() {
     setIsSolving(true);
-    main(cellGrid, setCellGrid);
+    solve(cellGrid, setCellGrid, GRID_SIDE_LENGTH);
   }
 
   return (

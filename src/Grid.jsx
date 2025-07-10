@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './stylesheets/Grid.module.css';
 import './stylesheets/global.css'
 import { index_to_column, index_to_row } from "./helper/GridDecoder.js";
-import { FaStar } from "react-icons/fa";
+import { PiStarFourFill } from "react-icons/pi";
 import { GoDotFill } from "react-icons/go";
 
 const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
@@ -112,7 +112,7 @@ const Cell = ({ cellData, mouseDown, selectedColor, setCellGrid, clearCellGrid }
         e.preventDefault();
         clearCellGrid();
       }} >
-        {cellData.isStar ? <FaStar/> : cellData.isDot ? <GoDotFill/> : <div/>}
+        {cellData.isStar ? <PiStarFourFill/> : cellData.isDot ? <GoDotFill/> : <div/>}
       </div>
   );
 };
