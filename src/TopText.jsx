@@ -21,8 +21,8 @@ const TopText = ({ cellGrid, GRID_SIDE_LENGTH, setIsReadyToSolve, isSolving }) =
     )).length === GRID_SIDE_LENGTH * GRID_SIDE_LENGTH;
 
     const colorsUsedCount = new Set(cellGrid
-        .filter(cell => cell && cell.id !== undefined)
-        .map(cell => cell.id)).size;
+        .filter(cell => cell && cell.colorId !== undefined)
+        .map(cell => cell.colorId)).size;
     const allColorsUsed = colorsUsedCount === GRID_SIDE_LENGTH;
     const isSolved = () => {
         const _cellGrid = [...cellGrid];
@@ -42,7 +42,7 @@ const TopText = ({ cellGrid, GRID_SIDE_LENGTH, setIsReadyToSolve, isSolving }) =
         
         const cellGridColors = Array(GRID_SIDE_LENGTH).fill().map(() => []);
         for (let i = 0; i < _cellGrid.length; i++) {
-            cellGridColors[_cellGrid[i].id].push(_cellGrid[i]);
+            cellGridColors[_cellGrid[i].colorId].push(_cellGrid[i]);
         }
         const colorsSolved = cellGridColors.filter(col => col.filter(cell => cell.isStar).length === 1).length === GRID_SIDE_LENGTH;
         

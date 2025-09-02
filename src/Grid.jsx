@@ -39,6 +39,19 @@ const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
     };
   }, []);
 
+  const updateCellGrid = (cellIndex) => {
+    setCellGrid(prev => {
+      const prevList = [...prev];
+      prevList[cellIndex] = {
+        index: cellIndex,
+        isStar: false,
+        isDot: false,
+        ...selectedColor
+      };
+      return prevList;
+    });
+  }
+
   return (
     <div className={styles.grid} style={gridStyles}>
       {Array.from({ length: REAL_GRID_SIZE }, (_, index) => {
@@ -59,11 +72,7 @@ const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
               selectedColor={selectedColor}
               setCellGrid={() => {
                 if (selectedColor) {
-                  setCellGrid(prev => {
-                    const prevList = [...prev];
-                    prevList[cellIndex] = { ...selectedColor };
-                    return prevList;
-                  });
+                  updateCellGrid(cellIndex);
                 }
               }}
               clearCellGrid={() => {
@@ -112,8 +121,8 @@ const Cell = ({ cellData, mouseDown, selectedColor, setCellGrid, clearCellGrid }
         e.preventDefault();
         clearCellGrid();
       }} >
-        {cellData.isStar ? <PiStarFourFill/> : cellData.isDot ? <GoDotFill/> : <div/>}
-      </div>
+      {cellData.isStar ? <PiStarFourFill /> : cellData.isDot ? <GoDotFill /> : <div />}
+    </div>
   );
 };
 
