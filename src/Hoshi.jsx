@@ -13,20 +13,28 @@ const Hoshi = () => {
 
   // TEMPORARY:
   const rng = seedrandom('bryry');
-  const rng_list = [[rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()]];
+  const rng_list = Array.from({ length: 11 }, () =>
+    Array.from({ length: 3 }, rng)
+  );
   const index_map = [
-    0, 0, 0, 1, 1,
-    2, 1, 1, 1, 3,
-    2, 1, 4, 3, 3,
-    4, 4, 4, 3, 3,
-    4, 4, 4, 4, 4,
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1,
+    3, 3, 3, 2, 2, 2, 2, 0, 1, 1, 1,
+    3, 3, 3, 2, 4, 4, 4, 0, 0, 0, 1,
+    3, 3, 3, 2, 4, 5, 4, 0, 6, 6, 6,
+    3, 7, 7, 7, 4, 5, 4, 0, 6, 8, 8,
+    3, 7, 7, 7, 4, 5, 4, 0, 6, 6, 6,
+    7, 7, 7, 7, 4, 4, 4, 0, 6, 9, 9,
+    10, 10, 10, 7, 7, 7, 0, 0, 6, 6, 6,
+    10, 10, 10, 10, 10, 7, 10, 0, 0, 0, 0,
+    10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0,
   ];
   // const index_map = [
-  //   0, 0, 0, 1, 1,
-  //   2, 1, 1, 1, 3,
-  //   2, 1, 4, 3, 3,
-  //   4, 4, 4, 4, 3,
-  //   4, 4, 4, 4, 4,
+  // 0, 0, 0, 1, 1,
+  // 2, 1, 1, 1, 3,
+  // 2, 1, 4, 3, 3,
+  // 4, 4, 4, 3, 3,
+  // 4, 4, 4, 4, 4,
   // ]
   function getNewCell(index, colorId, rng) {
     return {
@@ -42,7 +50,7 @@ const Hoshi = () => {
     };
   }
 
-  const GRID_SIDE_LENGTH = 5;
+  const GRID_SIDE_LENGTH = 11;
   const [cellGrid, setCellGrid] = useState(
     Array.from({ length: GRID_SIDE_LENGTH * GRID_SIDE_LENGTH }, (_, index) => getNewCell(index, index_map[index], rng_list[index_map[index]]))
   );

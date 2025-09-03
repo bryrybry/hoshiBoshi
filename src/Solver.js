@@ -1,4 +1,5 @@
-import { areListsEqual } from "./helper/MiscHelper";
+import { areListsEqual, generateArrayGroupIndices, generateArrayGroupSlices } from "./helper/MiscHelper";
+import { get3x3Around, areNumbersApartBy } from "./helper/GridDecoder";
 
 let dpr = 1; // dots per row lmaoo i have no clue what else to call this
 let allCells = [];
@@ -31,8 +32,6 @@ export function solve(importedCellGrid, setCellGrid, length) {
         return acc;
     }, {});
     cellsByColor = Object.values(colorGroups);
-    console.log(`THE cellsByColor`)
-    console.log(cellsByColor)
 
     loopSolve = true;
     while (loopSolve) {
@@ -70,34 +69,18 @@ function starCells(indices, method) {
                 emptyCellsToBeFilled.push(...selectedArray.filter(cell => !cell.isDot && !cell.isStar).map(cell => cell.index));
             }
         }
+        emptyCellsToBeFilled.push(
+            ...get3x3Around(index, sideLength)
+                .map(index => allCells[index])
+                .filter(cell => !cell.isDot && !cell.isStar)
+                .map(cell => cell.index)
+        );
         emptyCellsToBeFilled = [...new Set(emptyCellsToBeFilled)];
         if (emptyCellsToBeFilled.length) {
-            dotCells(emptyCellsToBeFilled, `Inserting Star into Cell ${index}`);
+            dotCells(emptyCellsToBeFilled, `Star in Cell ${index}`);
         }
     }
     console.log(`[${method}] Starring cells: ${indices}`);
-}
-
-function generateArrayGroupIndices(length) { // 4
-    const list = [];
-    for (let size = 1; size < length; size++) { // 1 to 3
-        for (let i = 0; i <= length - size; i++) { // 0 to 3 
-            const innerList = [];
-            for (let s = 0; s < size; s++) { // 0 to 0
-                innerList.push(i + s);
-            }
-            list.push(innerList);
-        }
-    }
-    return list;
-}
-
-function generateArrayGroupSlices(indicesList) {
-    const list = [];
-    for (const indices of indicesList) {
-        list.push([indices[0], indices[indices.length - 1] + 1])
-    }
-    return list;
 }
 
 // degree is the number of rows/cols checked for the pattern
@@ -156,29 +139,47 @@ function DPRx2() { // if a row has 2x the DPR in remaining cells, and they are c
         let rows = []
         let cells = []
         for (let row in Matrix) {
-            let cellCount = Matrix[row].filter(obj => obj.isDot === false).length
-            if (cellCount != dpr * 2) continue
-            rows.push(row)
+            let cells = Matrix[row].filter(obj => !obj.isDot && !obj.isStar);
+            if (cells.length != dpr * 2) continue;
+            if (!(
+                areNumbersApartBy(cells.map(cell => cell.index), 1) ||
+                areNumbersApartBy(cells.map(cell => cell.index), sideLength)
+            )) continue;
+            rows.push(row);
             for (let cell of Matrix[row]) {
-                if (cell.isDot === true) continue
-                let index = allCells.indexOf(cell)
-                cells.push(index)
+                let index = allCells.indexOf(cell);
+                cells.push(index);
             }
         }
-        if (orientation == 'h') {
-            for (let cell of cells) {
-                const dotCellsList = [];
+        const dotCellsList = [];
+        for (let cell of cells) {
+            if (orientation === 'h') {
                 if (cell >= sideLength) {
                     let aboveCellIndex = cell - sideLength;
-                    dotCellsList.push(aboveCellIndex);
+                    if (!allCells[aboveCellIndex].isDot && !allCells[aboveCellIndex].isStar) dotCellsList.push(aboveCellIndex);
                 }
                 if (cell < allCells.length - sideLength) {
                     let belowCellIndex = cell + sideLength;
-                    dotCellsList.push(belowCellIndex);
+                    if (!allCells[belowCellIndex].isDot && !allCells[belowCellIndex].isStar) dotCellsList.push(belowCellIndex);
                 }
-                dotCells(dotCellsList, "DPRx2");
+            } else { // 'v'
+                if (cell % sideLength !== 0) {
+                    let leftCellIndex = cell - 1;
+                    if (!allCells[leftCellIndex].isDot && !allCells[leftCellIndex].isStar) dotCellsList.push(leftCellIndex);
+                }
+                if (cell % sideLength !== sideLength - 1) {
+                    let rightCellIndex = cell + 1;
+                    if (!allCells[rightCellIndex].isDot && !allCells[rightCellIndex].isStar) dotCellsList.push(rightCellIndex);
+                }
             }
         }
+        if (dotCellsList.length) {
+            dotCells(dotCellsList, "DPRx2");
+            loopSolve = true;
+            return;
+        }
+        // loopSolve = true;
+        // return;
     }
 }
 // function solidColours(length) {
