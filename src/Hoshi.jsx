@@ -14,20 +14,20 @@ const Hoshi = () => {
   // TEMPORARY:
   const rng = seedrandom('bryry');
   const rng_list = [[rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()], [rng(), rng(), rng()]];
-  // const index_map = [
-  //   0, 0, 0, 1, 1,
-  //   2, 1, 1, 1, 3,
-  //   2, 1, 4, 3, 3,
-  //   4, 4, 4, 3, 3,
-  //   4, 4, 4, 4, 4,
-  // ];
   const index_map = [
     0, 0, 0, 1, 1,
     2, 1, 1, 1, 3,
     2, 1, 4, 3, 3,
-    4, 4, 4, 4, 3,
+    4, 4, 4, 3, 3,
     4, 4, 4, 4, 4,
-  ]
+  ];
+  // const index_map = [
+  //   0, 0, 0, 1, 1,
+  //   2, 1, 1, 1, 3,
+  //   2, 1, 4, 3, 3,
+  //   4, 4, 4, 4, 3,
+  //   4, 4, 4, 4, 4,
+  // ]
   function getNewCell(index, colorId, rng) {
     return {
       index,

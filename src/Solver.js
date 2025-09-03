@@ -1,6 +1,6 @@
-import { FaLastfmSquare } from "react-icons/fa";
 import { areListsEqual } from "./helper/MiscHelper";
 
+let dpr = 1; // dots per row lmaoo i have no clue what else to call this
 let allCells = [];
 let sideLength;
 let arrayGroupIndices = [];
@@ -9,7 +9,7 @@ let arrayGroupIndices = [];
 // [ [0], [1], [2], [3], [0, 1], [1, 2], [2, 3], [0, 1, 2], [1, 2, 3] ]
 let arrayGroupSlices = [];
 // Same thing as above, but used for the .slice(start, end) method.
-let cellsByRow = [], cellsByCol = [];
+let cellsByRow = [], cellsByCol = [], cellsByColor = [];
 
 let loopSolve = true;
 
@@ -20,8 +20,19 @@ export function solve(importedCellGrid, setCellGrid, length) {
     arrayGroupSlices = generateArrayGroupSlices(arrayGroupIndices);
 
     let cellGridClone = allCells.slice(); // clone array
-    while (cellGridClone.length) cellsByRow.push(cellGridClone.splice(0, length)); // generate horizontal 2d matrix
-    cellsByCol = cellsByRow[0].map((_, colIndex) => cellsByRow.map(row => row[colIndex])); // generate horizontal 2d matrix
+    while (cellGridClone.length) cellsByRow.push(cellGridClone.splice(0, length));
+    cellsByCol = cellsByRow[0].map((_, colIndex) => cellsByRow.map(row => row[colIndex]));
+    const colorGroups = allCells.reduce((acc, cell) => {
+        const { colorId } = cell;
+        if (!acc[colorId]) {
+            acc[colorId] = [];
+        }
+        acc[colorId].push(cell);
+        return acc;
+    }, {});
+    cellsByColor = Object.values(colorGroups);
+    console.log(`THE cellsByColor`)
+    console.log(cellsByColor)
 
     loopSolve = true;
     while (loopSolve) {
@@ -30,7 +41,9 @@ export function solve(importedCellGrid, setCellGrid, length) {
         // solve functions
         // solidColours(length);
         obviousStar();
+        DPRx2();
         occupiedRegionsB();
+
         // end
         if (!areListsEqual(_allCells, allCells)) loopSolve = true;
     }
@@ -38,18 +51,31 @@ export function solve(importedCellGrid, setCellGrid, length) {
     // use setCellGrid(new_grid) to change the grid or smth
 }
 
-function dotCells(indices) {
+function dotCells(indices, method) {
     for (const index of indices) {
         allCells[index].isDot = true;
     }
-    console.log(`Dotting cells: ${indices}`)
+    console.log(`[${method}] Dotting cells: ${indices}`);
 }
 
-function starCells(indices) {
+function starCells(indices, method) {
     for (const index of indices) {
         allCells[index].isStar = true;
+        let emptyCellsToBeFilled = [];
+        for (const cellsArray of [cellsByColor, cellsByRow, cellsByCol]) {
+            const selectedArray = cellsArray.find(array =>
+                array.some(cell => cell.index === index)
+            );
+            if (selectedArray.filter(cell => cell.isStar).length === dpr) { // hit the limit
+                emptyCellsToBeFilled.push(...selectedArray.filter(cell => !cell.isDot && !cell.isStar).map(cell => cell.index));
+            }
+        }
+        emptyCellsToBeFilled = [...new Set(emptyCellsToBeFilled)];
+        if (emptyCellsToBeFilled.length) {
+            dotCells(emptyCellsToBeFilled, `Inserting Star into Cell ${index}`);
+        }
     }
-    console.log(`Starring cells: ${indices}`)
+    console.log(`[${method}] Starring cells: ${indices}`);
 }
 
 function generateArrayGroupIndices(length) { // 4
@@ -79,6 +105,15 @@ function generateArrayGroupSlices(indicesList) {
 
 function obviousStar() {
     if (loopSolve) return;
+    for (const cellsArray of [cellsByColor, cellsByRow, cellsByCol]) {
+        for (const array of cellsArray) {
+            const emptyCells = array.filter(cell => !cell.isDot && !cell.isStar);
+            if (emptyCells.length != 1) continue;
+            starCells([emptyCells[0].index], "obviousStar");
+            loopSolve = true;
+            return;
+        }
+    }
 }
 
 function onlyFill(degree) {
@@ -105,9 +140,7 @@ function occupiedRegionsB(degree) {
                     !cell.isDot
                 );
                 if (selectedCells.length) {
-                    console.log(`degree: ${end - start}`)
-                    console.log(`a`)
-                    dotCells(selectedCells.map(cell => cell.index));
+                    dotCells(selectedCells.map(cell => cell.index), "occupiedRegionsB");
                     loopSolve = true;
                     return;
                 }
@@ -116,6 +149,38 @@ function occupiedRegionsB(degree) {
     }
 }
 
+function DPRx2() { // if a row has 2x the DPR in remaining cells, and they are consecutive, the cells parallel to them are dots
+    if (loopSolve) return;
+    for (const orientation of ['h', 'v']) {
+        const Matrix = orientation === 'h' ? cellsByRow : cellsByCol;
+        let rows = []
+        let cells = []
+        for (let row in Matrix) {
+            let cellCount = Matrix[row].filter(obj => obj.isDot === false).length
+            if (cellCount != dpr * 2) continue
+            rows.push(row)
+            for (let cell of Matrix[row]) {
+                if (cell.isDot === true) continue
+                let index = allCells.indexOf(cell)
+                cells.push(index)
+            }
+        }
+        if (orientation == 'h') {
+            for (let cell of cells) {
+                const dotCellsList = [];
+                if (cell >= sideLength) {
+                    let aboveCellIndex = cell - sideLength;
+                    dotCellsList.push(aboveCellIndex);
+                }
+                if (cell < allCells.length - sideLength) {
+                    let belowCellIndex = cell + sideLength;
+                    dotCellsList.push(belowCellIndex);
+                }
+                dotCells(dotCellsList, "DPRx2");
+            }
+        }
+    }
+}
 // function solidColours(length) {
 //     solidColourRow(cellsByRow, 'h', length)
 //     solidColourRow(cellsByCol, 'v', length)
@@ -141,14 +206,14 @@ function occupiedRegionsB(degree) {
 //         }
 //     }
 //     for (let index in sameIds) {
-//         for (let cell in cellGrid) {
+//         for (let cell in allCells) {
 //             if (orientation == 'h') { // dont cancel out the row we are looking at
 //                 if (Math.floor(cell / length) == rows[index]) continue
 //             } else if (orientation == 'v') {
 //                 if (Math.floor(cell % length) == rows[index]) continue
 //             }
-//             if (cellGrid[cell].id == sameIds[index]) { //place dots on cells that match the colour
-//                 cellGrid[cell].isDot = true
+//             if (allCells[cell].id == sameIds[index]) { //place dots on cells that match the colour
+//                 allCells[cell].isDot = true
 //             }
 //         }
 //     }
