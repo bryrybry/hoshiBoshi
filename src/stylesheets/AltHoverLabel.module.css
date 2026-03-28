@@ -1,0 +1,28 @@
+.hoverLabel {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.hoverLabel::after {
+  white-space: nowrap;
+  content: attr(data-text-content);
+  position: absolute;
+  left: 50%;
+  bottom: var(--hover-bottom, -0.5rem);
+  transform: translate(-50%, 50%) scale(0.95);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: 5;
+  color: white;
+  background: black;
+  font-size: calc(var(--text-subcontent-font-size) * 0.8);
+  border-radius: var(--quarter-spacing);
+  padding: calc(var(--quarter-spacing)*0.2) var(--quarter-spacing);
+  pointer-events: none;
+}
+
+.hoverLabel-active::after {
+  opacity: 1;
+  transform: translate(-50%, 100%) scale(1);
+}

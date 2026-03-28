@@ -1,7 +1,22 @@
+
 /* eslint-disable react/prop-types */
 import React, { useEffect } from 'react';
 import styles from './stylesheets/ColorPanel.module.css'
 import seedrandom from 'seedrandom';
+import { IoGridOutline } from "react-icons/io5";
+
+const EditPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, setSelectedColor }) => {
+    return (
+        <>
+            <ColorPanel
+                GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
+                colorList={colorList}
+                setColorList={setColorList}
+                selectedColor={selectedColor}
+                setSelectedColor={setSelectedColor} />
+        </>
+    )
+}
 
 const ColorPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, setSelectedColor }) => {
     function getNewCell(colorId, rng) {
@@ -36,4 +51,4 @@ const ColorPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, 
     );
 }
 
-export default ColorPanel;
+export default EditPanel;

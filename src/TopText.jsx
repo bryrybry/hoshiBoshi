@@ -1,16 +1,21 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import styles from "./stylesheets/TopText.module.css"
+import { EMPTY, DOT, STAR } from "./Grid";
 
 const TopText = ({ cellGrid, GRID_SIDE_LENGTH, setIsReadyToSolve, isSolving }) => {
-    const [text, setText] = useState("");
+    const [content, setContent] = useState("");
     useEffect(() => {
-        setText(() => {
-            if (!cellsFilled) return "Fill in the cells.";
-            if (!allColorsUsed) return `Not all colors were used! [${colorsUsedCount}/${GRID_SIDE_LENGTH}]`;
-            if (isSolving && !isSolved()) return `Now Solving...`
-            if (isSolving && isSolved()) return `ez`
-            return "Ready to Solve!"
+        console.log("chhekcing")
+        console.log(cellGrid)
+        setContent(() => {
+            if (!cellsFilled) return <h3>Fill in the cells.</h3>;
+            if (!allColorsUsed) return <h3>{`Not all colors were used! [${colorsUsedCount}/${GRID_SIDE_LENGTH}]`}</h3>;
+            if (isSolving && !isSolved()) return <h3>Now Solving...</h3>
+            if (isSolving && isSolved()) return <h3>ez</h3>
+            return <h3 onClick={() => {
+                console.log(cellGrid)
+            }}>Ready to Solve!</h3>
         });
         setIsReadyToSolve(cellsFilled && allColorsUsed);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -32,26 +37,26 @@ const TopText = ({ cellGrid, GRID_SIDE_LENGTH, setIsReadyToSolve, isSolving }) =
             const chunk = _cellGrid.slice(i, i + GRID_SIDE_LENGTH);
             cellGridRows.push(chunk);
         }
-        const rowsSolved = cellGridRows.filter(row => row.filter(cell => cell.isStar).length === 1).length === GRID_SIDE_LENGTH;
-        
+        const rowsSolved = cellGridRows.filter(row => row.filter(cell => cell.state === STAR).length === 1).length === GRID_SIDE_LENGTH;
+
         const cellGridCols = Array(GRID_SIDE_LENGTH).fill().map(() => []);
         for (let i = 0; i < _cellGrid.length; i++) {
             cellGridCols[i % GRID_SIDE_LENGTH].push(_cellGrid[i]);
         }
-        const colsSolved = cellGridCols.filter(col => col.filter(cell => cell.isStar).length === 1).length === GRID_SIDE_LENGTH;
-        
+        const colsSolved = cellGridCols.filter(col => col.filter(cell => cell.state === STAR).length === 1).length === GRID_SIDE_LENGTH;
+
         const cellGridColors = Array(GRID_SIDE_LENGTH).fill().map(() => []);
         for (let i = 0; i < _cellGrid.length; i++) {
             cellGridColors[_cellGrid[i].colorId].push(_cellGrid[i]);
         }
-        const colorsSolved = cellGridColors.filter(col => col.filter(cell => cell.isStar).length === 1).length === GRID_SIDE_LENGTH;
-        
+        const colorsSolved = cellGridColors.filter(col => col.filter(cell => cell.state === STAR).length === 1).length === GRID_SIDE_LENGTH;
+
         return (rowsSolved && colsSolved && colorsSolved);
     }
 
     return (
         <div className={styles.topText}>
-            <h3>{text}</h3>
+            {content}
         </div>
     );
 }

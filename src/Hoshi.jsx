@@ -2,15 +2,15 @@
 import React, { useState, useRef } from 'react';
 import Grid from './Grid.jsx';
 import TopText from './TopText.jsx';
-import ColorPanel from './ColorPanel.jsx';
 import styles from './stylesheets/Hoshi.module.css'
 import { solve } from './Solver.js';
+import EditPanel from './EditPanel.jsx';
+import { EMPTY, DOT, STAR } from "./Grid";
 
 // TEMPORARY:
 import seedrandom from 'seedrandom';
 
 const Hoshi = () => {
-
   // TEMPORARY:
   const rng = seedrandom('bryry');
   const rng_list = Array.from({ length: 11 }, () =>
@@ -39,8 +39,7 @@ const Hoshi = () => {
   function getNewCell(index, colorId, rng) {
     return {
       index,
-      isStar: false,
-      isDot: false,
+      state: EMPTY,
       colorId,
       rgb: {
         r: Math.floor(rng[0] * 255),
@@ -66,23 +65,23 @@ const Hoshi = () => {
 
   return (
     <div className={styles.hoshi}>
-      <div style={{ flex: 2 }}>
+      <div style={{ flex: 1 }}>
         <TopText
           cellGrid={cellGrid}
           GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
           setIsReadyToSolve={setIsReadyToSolve}
           isSolving={isSolving} />
       </div>
-      <div style={{ flex: 6 }}>
+      <div style={{ flex: 3 }}>
         <Grid
           cellGrid={cellGrid}
           setCellGrid={setCellGrid}
           selectedColor={selectedColor}
           GRID_SIDE_LENGTH={GRID_SIDE_LENGTH} />
       </div>
-      <div style={{ flex: 2 }}>
+      <div style={{ flex: 1 }}>
         {!isReadyToSolve ?
-          <ColorPanel
+          <EditPanel
             GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
             colorList={colorList}
             setColorList={setColorList}

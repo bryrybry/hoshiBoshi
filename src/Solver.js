@@ -1,5 +1,6 @@
 import { areListsEqual, generateArrayGroupIndices, generateArrayGroupSlices } from "./helper/MiscHelper";
 import { get3x3Around, areNumbersApartBy } from "./helper/GridDecoder";
+import { EMPTY, DOT, STAR } from "./Grid";
 
 let dpr = 1; // dots per row lmaoo i have no clue what else to call this
 let allCells = [];
@@ -41,38 +42,39 @@ export function solve(importedCellGrid, setCellGrid, length) {
         // solidColours(length);
         obviousStar();
         DPRx2();
+        occupiedRegionsA();
         occupiedRegionsB();
 
         // end
         if (!areListsEqual(_allCells, allCells)) loopSolve = true;
     }
 
-    // use setCellGrid(new_grid) to change the grid or smth
+    setCellGrid(allCells)
 }
 
 function dotCells(indices, method) {
     for (const index of indices) {
-        allCells[index].isDot = true;
+        allCells[index].state = DOT;
     }
     console.log(`[${method}] Dotting cells: ${indices}`);
 }
 
 function starCells(indices, method) {
     for (const index of indices) {
-        allCells[index].isStar = true;
+        allCells[index].state = STAR;
         let emptyCellsToBeFilled = [];
         for (const cellsArray of [cellsByColor, cellsByRow, cellsByCol]) {
             const selectedArray = cellsArray.find(array =>
                 array.some(cell => cell.index === index)
             );
-            if (selectedArray.filter(cell => cell.isStar).length === dpr) { // hit the limit
-                emptyCellsToBeFilled.push(...selectedArray.filter(cell => !cell.isDot && !cell.isStar).map(cell => cell.index));
+            if (selectedArray.filter(cell => cell.state === STAR).length === dpr) { // hit the limit
+                emptyCellsToBeFilled.push(...selectedArray.filter(cell => cell.state === EMPTY).map(cell => cell.index));
             }
         }
         emptyCellsToBeFilled.push(
             ...get3x3Around(index, sideLength)
                 .map(index => allCells[index])
-                .filter(cell => !cell.isDot && !cell.isStar)
+                .filter(cell => cell.state === EMPTY)
                 .map(cell => cell.index)
         );
         emptyCellsToBeFilled = [...new Set(emptyCellsToBeFilled)];
@@ -90,7 +92,7 @@ function obviousStar() {
     if (loopSolve) return;
     for (const cellsArray of [cellsByColor, cellsByRow, cellsByCol]) {
         for (const array of cellsArray) {
-            const emptyCells = array.filter(cell => !cell.isDot && !cell.isStar);
+            const emptyCells = array.filter(cell => cell.state === EMPTY);
             if (emptyCells.length != 1) continue;
             starCells([emptyCells[0].index], "obviousStar");
             loopSolve = true;
@@ -103,7 +105,44 @@ function onlyFill(degree) {
     if (loopSolve) return;
 }
 
-// TODO: MOVE RESTART TO THE OUTSIDE
+function occupiedRegionsA(degree) {
+    if (loopSolve) return;
+    for (const [start, end] of arrayGroupSlices) {
+        for (const cellsArray of [cellsByRow, cellsByCol]) {
+            if (degree && (end - start !== degree)) continue;
+            const cellsSection = cellsArray.slice(start, end);
+            const sectionIndices = cellsSection.flat().map(cell => cell.index);
+            const expectedColorCount = cellsSection.length;
+            const invalidColors = [];
+            const validColors = [];
+            for (const cell of cellsSection.flat()) {
+                if (!([...invalidColors, ...validColors].includes(cell.colorId)) && cell.state === EMPTY) {
+                    const colorCells = cellsByColor
+                        .find(cells => cells.map(c => c.index).includes(cell.index))
+                        .map(c => c.index);
+                    if (colorCells.every(num => sectionIndices.includes(num))) { // is a subset
+                        validColors.push(cell.colorId);
+                    } else {
+                        invalidColors.push(cell.colorId);
+                    }
+                }
+            }
+            if (validColors.length === expectedColorCount) {
+                const selectedCells = allCells.filter(cell =>
+                    sectionIndices.includes(cell.index) &&
+                    !validColors.includes(cell.colorId) &&
+                    cell.state === EMPTY
+                );
+                if (selectedCells.length) {
+                    dotCells(selectedCells.map(cell => cell.index), `occupiedRegionsA (${end - start})`);
+                    loopSolve = true;
+                    return;
+                }
+            }
+        }
+    }
+}
+
 function occupiedRegionsB(degree) {
     if (loopSolve) return;
     for (const [start, end] of arrayGroupSlices) {
@@ -113,14 +152,14 @@ function occupiedRegionsB(degree) {
             const expectedColorCount = cellsSection.length;
             const seenColors = [];
             for (const cell of cellsSection.flat()) {
-                if (!seenColors.includes(cell.colorId) && !cell.isDot) seenColors.push(cell.colorId);
+                if (!seenColors.includes(cell.colorId) && cell.state === EMPTY) seenColors.push(cell.colorId);
             }
             if (seenColors.length === expectedColorCount) {
                 const sectionIndices = cellsSection.flat().map(cell => cell.index);
                 const selectedCells = allCells.filter(cell =>
                     !sectionIndices.includes(cell.index) &&
                     seenColors.includes(cell.colorId) &&
-                    !cell.isDot
+                    cell.state === EMPTY
                 );
                 if (selectedCells.length) {
                     dotCells(selectedCells.map(cell => cell.index), "occupiedRegionsB");
@@ -139,16 +178,15 @@ function DPRx2() { // if a row has 2x the DPR in remaining cells, and they are c
         let rows = []
         let cells = []
         for (let row in Matrix) {
-            let cells = Matrix[row].filter(obj => !obj.isDot && !obj.isStar);
-            if (cells.length != dpr * 2) continue;
+            let filteredCells = Matrix[row].filter(cell => cell.state === EMPTY);
+            if (filteredCells.length != dpr * 2) continue;
             if (!(
-                areNumbersApartBy(cells.map(cell => cell.index), 1) ||
-                areNumbersApartBy(cells.map(cell => cell.index), sideLength)
+                areNumbersApartBy(filteredCells.map(cell => cell.index), 1) ||
+                areNumbersApartBy(filteredCells.map(cell => cell.index), sideLength)
             )) continue;
             rows.push(row);
             for (let cell of Matrix[row]) {
-                let index = allCells.indexOf(cell);
-                cells.push(index);
+                if (cell.state === EMPTY) cells.push(cell.index);
             }
         }
         const dotCellsList = [];
@@ -156,20 +194,20 @@ function DPRx2() { // if a row has 2x the DPR in remaining cells, and they are c
             if (orientation === 'h') {
                 if (cell >= sideLength) {
                     let aboveCellIndex = cell - sideLength;
-                    if (!allCells[aboveCellIndex].isDot && !allCells[aboveCellIndex].isStar) dotCellsList.push(aboveCellIndex);
+                    if (allCells[aboveCellIndex].state === EMPTY) dotCellsList.push(aboveCellIndex);
                 }
                 if (cell < allCells.length - sideLength) {
                     let belowCellIndex = cell + sideLength;
-                    if (!allCells[belowCellIndex].isDot && !allCells[belowCellIndex].isStar) dotCellsList.push(belowCellIndex);
+                    if (allCells[belowCellIndex].state === EMPTY) dotCellsList.push(belowCellIndex);
                 }
             } else { // 'v'
                 if (cell % sideLength !== 0) {
                     let leftCellIndex = cell - 1;
-                    if (!allCells[leftCellIndex].isDot && !allCells[leftCellIndex].isStar) dotCellsList.push(leftCellIndex);
+                    if (allCells[leftCellIndex].state === EMPTY) dotCellsList.push(leftCellIndex);
                 }
                 if (cell % sideLength !== sideLength - 1) {
                     let rightCellIndex = cell + 1;
-                    if (!allCells[rightCellIndex].isDot && !allCells[rightCellIndex].isStar) dotCellsList.push(rightCellIndex);
+                    if (allCells[rightCellIndex].state === EMPTY) dotCellsList.push(rightCellIndex);
                 }
             }
         }
@@ -214,7 +252,7 @@ function DPRx2() { // if a row has 2x the DPR in remaining cells, and they are c
 //                 if (Math.floor(cell % length) == rows[index]) continue
 //             }
 //             if (allCells[cell].id == sameIds[index]) { //place dots on cells that match the colour
-//                 allCells[cell].isDot = true
+//                 allCells[cell].state = DOT
 //             }
 //         }
 //     }

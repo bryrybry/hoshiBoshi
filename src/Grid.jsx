@@ -7,6 +7,10 @@ import { index_to_column, index_to_row } from "./helper/GridDecoder.js";
 import { PiStarFourFill } from "react-icons/pi";
 import { GoDotFill } from "react-icons/go";
 
+export const EMPTY = 0;
+export const DOT = 1;
+export const STAR = 2;
+
 const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
   const GRID_REAL_SIDE_LENGTH = GRID_SIDE_LENGTH * 2 + 1;
   const REAL_GRID_SIZE = GRID_REAL_SIDE_LENGTH * GRID_REAL_SIDE_LENGTH;
@@ -44,8 +48,7 @@ const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
       const prevList = [...prev];
       prevList[cellIndex] = {
         index: cellIndex,
-        isStar: false,
-        isDot: false,
+        state: EMPTY,
         ...selectedColor
       };
       return prevList;
@@ -106,7 +109,7 @@ const Cell = ({ cellData, mouseDown, selectedColor, setCellGrid, clearCellGrid }
       className={`${styles.cell} ${selectedColor ? styles.clickable : ''}`}
       style={{
         background: Object.keys(safeCellData).length === 0 ? 'transparent' :
-          `rgba(${safeCellData.rgb.r}, ${safeCellData.rgb.g}, ${safeCellData.rgb.b}, 0.5)`
+          `rgba(${safeCellData.rgb.r}, ${safeCellData.rgb.g}, ${safeCellData.rgb.b}, 0.6)`
       }}
       onMouseDown={(e) => {
         e.preventDefault();
@@ -121,7 +124,7 @@ const Cell = ({ cellData, mouseDown, selectedColor, setCellGrid, clearCellGrid }
         e.preventDefault();
         clearCellGrid();
       }} >
-      {cellData.isStar ? <PiStarFourFill /> : cellData.isDot ? <GoDotFill /> : <div />}
+      {cellData.state === STAR ? <PiStarFourFill /> : cellData.state === DOT ? <GoDotFill size={15} /> : <div />}
     </div>
   );
 };

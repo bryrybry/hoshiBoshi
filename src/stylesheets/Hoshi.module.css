@@ -54,4 +54,5 @@
 .solveButton.clicked {
     opacity: 0;
     transform: translate(-50%, -50%) scale(30);
+    pointer-events: none;
 }
