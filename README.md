@@ -1,6 +1,6 @@
 # hoshiBoshi
 
-![nyoom](./assets/hoshiDemo.gif)
+![nyoom](./public/assets/hoshiDemo.gif)
 
 This puzzle solver is based on the **Star Battle** puzzle (also known as "Queens" on LinkedIn).
 
