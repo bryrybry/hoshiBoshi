@@ -5,7 +5,7 @@
 This puzzle solver is based on the **Star Battle** puzzle (also known as "Queens" on LinkedIn).
 
 ## 👆 Try it out
-[Click here](https://bryrybry.github.io/hoshiBoshi)  
+- **[Click here!](https://bryrybry.github.io/hoshiBoshi)**
 
 ## 💡 How it works
 1. Fill in the puzzle you want to solve
@@ -14,5 +14,5 @@ This puzzle solver is based on the **Star Battle** puzzle (also known as "Queens
 4. It automatically solves it!
 
 Additionally, to find out more about **Star Battle**, you can check out these overviews:
-https://tryhardpuzzles.com/blog/star-battle-rules
-https://www.puzzles.wiki/wiki/Star_Battle
+- https://tryhardpuzzles.com/blog/star-battle-rules
+- https://www.puzzles.wiki/wiki/Star_Battle
