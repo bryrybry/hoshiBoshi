@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Grid from './Grid.jsx';
 import TopText from './TopText.jsx';
 import styles from './stylesheets/Hoshi.module.css'
 import { solve } from './Solver.js';
 import EditPanel from './EditPanel.jsx';
 import { EMPTY, DOT, STAR } from "./Grid";
+import { FaTrash } from "react-icons/fa";
 
 // TEMPORARY:
 import seedrandom from 'seedrandom';
@@ -49,18 +50,26 @@ const Hoshi = () => {
     };
   }
 
-  const GRID_SIDE_LENGTH = 11;
-  const [cellGrid, setCellGrid] = useState(
-    Array.from({ length: GRID_SIDE_LENGTH * GRID_SIDE_LENGTH }, (_, index) => getNewCell(index, index_map[index], rng_list[index_map[index]]))
-  );
+  const INITIAL_GRID_SIZE = 11;
   const [colorList, setColorList] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [isReadyToSolve, setIsReadyToSolve] = useState(false);
   const [isSolving, setIsSolving] = useState(false);
+  const [gridSideLength, setGridSideLength] = useState(INITIAL_GRID_SIZE);
+  const [sizeInputField, setSizeInputField] = useState(INITIAL_GRID_SIZE);
+  const [cellGrid, setCellGrid] = useState(() =>
+    Array.from({ length: gridSideLength * gridSideLength },
+      (_, index) => getNewCell(index, index_map[index], rng_list[index_map[index]])
+    )
+  );
+
+  useEffect(() => {
+
+  }, [])
 
   function onSolveButtonClick() {
     setIsSolving(true);
-    solve(cellGrid, setCellGrid, GRID_SIDE_LENGTH);
+    solve(cellGrid, setCellGrid, gridSideLength);
   }
 
   return (
@@ -68,21 +77,73 @@ const Hoshi = () => {
       <div style={{ flex: 1 }}>
         <TopText
           cellGrid={cellGrid}
-          GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
+          GRID_SIDE_LENGTH={gridSideLength}
           setIsReadyToSolve={setIsReadyToSolve}
           isSolving={isSolving} />
       </div>
-      <div style={{ flex: 3 }}>
+      <div style={{ flex: 3 }} className={styles.middleRow}>
         <Grid
           cellGrid={cellGrid}
           setCellGrid={setCellGrid}
           selectedColor={selectedColor}
-          GRID_SIDE_LENGTH={GRID_SIDE_LENGTH} />
+          GRID_SIDE_LENGTH={gridSideLength} />
+        <div style={{ flex: 1, height: '100%' }}>
+          <div className={styles.sidebar}>
+            <div className={styles.sizeWrapper}>
+              <div>
+                Size
+              </div>
+              <input
+                className={styles.sizeInput}
+                type="number"
+                maxLength={2}
+                value={sizeInputField}
+                onChange={(e) => {
+                  const oldSize = gridSideLength;
+                  const newSize = e.target.value.slice(0, 2);
+                  setSizeInputField(newSize);
+                  if (newSize >= 5 && newSize != oldSize) {
+                    const diff = Math.abs(newSize - oldSize);
+                    if (newSize > oldSize) {
+                      // size increased
+                      let newCellGrid = [...cellGrid];
+                      for (let row = oldSize; row > 0; row--) {
+                        for (let _ = 0; _ < diff; _++) {
+                          newCellGrid.splice(row * oldSize, 0, {})
+                        }
+                      }
+                      newCellGrid.push(...Array(newSize * diff).fill({}));
+                      setCellGrid(newCellGrid);
+                    } else {
+                      // size decreased
+                      let newCellGrid = [...cellGrid];
+                      const x = oldSize * diff;
+                      newCellGrid.splice(-x, x);
+                      for (let row = newSize; row > 0; row--) {
+                        newCellGrid.splice(row*oldSize-diff, diff);
+                      }
+                      setCellGrid(newCellGrid);
+                    }
+                    setGridSideLength(newSize);
+                  }
+                }} />
+            </div>
+            <div style={{ height: '0.2rem' }} />
+            {!cellGrid.every(obj => Object.keys(obj).length === 0) &&
+              <button className={styles.clearButton} title="Clear Grid" onClick={() => {
+                setCellGrid(Array.from({ length: gridSideLength * gridSideLength },
+                  (_) => ({})
+                ))
+              }}>
+                <FaTrash />
+              </button>}
+          </div>
+        </div>
       </div>
       <div style={{ flex: 1 }}>
         {!isReadyToSolve ?
           <EditPanel
-            GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
+            GRID_SIDE_LENGTH={gridSideLength}
             colorList={colorList}
             setColorList={setColorList}
             selectedColor={selectedColor}

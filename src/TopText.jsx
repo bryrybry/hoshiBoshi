@@ -6,16 +6,12 @@ import { EMPTY, DOT, STAR } from "./Grid";
 const TopText = ({ cellGrid, GRID_SIDE_LENGTH, setIsReadyToSolve, isSolving }) => {
     const [content, setContent] = useState("");
     useEffect(() => {
-        console.log("chhekcing")
-        console.log(cellGrid)
         setContent(() => {
             if (!cellsFilled) return <h3>Fill in the cells.</h3>;
             if (!allColorsUsed) return <h3>{`Not all colors were used! [${colorsUsedCount}/${GRID_SIDE_LENGTH}]`}</h3>;
             if (isSolving && !isSolved()) return <h3>Now Solving...</h3>
             if (isSolving && isSolved()) return <h3>Solved it!</h3>
-            return <h3 onClick={() => {
-                console.log(cellGrid)
-            }}>Ready to Solve!</h3>
+            return <h3>Ready to Solve!</h3>
         });
         setIsReadyToSolve(cellsFilled && allColorsUsed);
         // eslint-disable-next-line react-hooks/exhaustive-deps
