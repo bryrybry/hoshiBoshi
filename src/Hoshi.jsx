@@ -7,65 +7,27 @@ import { solve } from './Solver.js';
 import EditPanel from './EditPanel.jsx';
 import { EMPTY, DOT, STAR } from "./Grid";
 import { FaTrash } from "react-icons/fa";
+import presets from "./datasets/presets.js";
 
 // TEMPORARY:
 import seedrandom from 'seedrandom';
 
 const Hoshi = () => {
-  // TEMPORARY:
-  const rng = seedrandom('bryry');
-  const rng_list = Array.from({ length: 11 }, () =>
-    Array.from({ length: 3 }, rng)
-  );
-  const index_map = [
-    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-    0, 2, 2, 2, 2, 0, 0, 0, 0, 1, 1,
-    3, 3, 3, 2, 2, 2, 2, 0, 1, 1, 1,
-    3, 3, 3, 2, 4, 4, 4, 0, 0, 0, 1,
-    3, 3, 3, 2, 4, 5, 4, 0, 6, 6, 6,
-    3, 7, 7, 7, 4, 5, 4, 0, 6, 8, 8,
-    3, 7, 7, 7, 4, 5, 4, 0, 6, 6, 6,
-    7, 7, 7, 7, 4, 4, 4, 0, 6, 9, 9,
-    10, 10, 10, 7, 7, 7, 0, 0, 6, 6, 6,
-    10, 10, 10, 10, 10, 7, 10, 0, 0, 0, 0,
-    10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0,
-  ];
-  // const index_map = [
-  // 0, 0, 0, 1, 1,
-  // 2, 1, 1, 1, 3,
-  // 2, 1, 4, 3, 3,
-  // 4, 4, 4, 3, 3,
-  // 4, 4, 4, 4, 4,
-  // ]
-  function getNewCell(index, colorId, rng) {
-    return {
-      index,
-      state: EMPTY,
-      colorId,
-      rgb: {
-        r: Math.floor(rng[0] * 255),
-        g: Math.floor(rng[1] * 255),
-        b: Math.floor(rng[2] * 255)
-      }
-    };
-  }
-
-  const INITIAL_GRID_SIZE = 11;
+  const INITIAL_GRID_SIZE = 8;
   const [colorList, setColorList] = useState([]);
   const [selectedColor, setSelectedColor] = useState(null);
   const [isReadyToSolve, setIsReadyToSolve] = useState(false);
   const [isSolving, setIsSolving] = useState(false);
   const [gridSideLength, setGridSideLength] = useState(INITIAL_GRID_SIZE);
   const [sizeInputField, setSizeInputField] = useState(INITIAL_GRID_SIZE);
+  const [presetInputField, setPresetInputField] = useState(0);
   const [cellGrid, setCellGrid] = useState(() =>
-    Array.from({ length: gridSideLength * gridSideLength },
-      (_, index) => getNewCell(index, index_map[index], rng_list[index_map[index]])
-    )
+    Array(gridSideLength * gridSideLength).fill(null).map(() => ({}))
   );
 
   useEffect(() => {
-
-  }, [])
+    console.log(cellGrid);
+  }, [cellGrid])
 
   function onSolveButtonClick() {
     setIsSolving(true);
@@ -77,7 +39,7 @@ const Hoshi = () => {
       <div style={{ flex: 1 }}>
         <TopText
           cellGrid={cellGrid}
-          GRID_SIDE_LENGTH={gridSideLength}
+          gridSideLength={gridSideLength}
           setIsReadyToSolve={setIsReadyToSolve}
           isSolving={isSolving} />
       </div>
@@ -86,15 +48,15 @@ const Hoshi = () => {
           cellGrid={cellGrid}
           setCellGrid={setCellGrid}
           selectedColor={selectedColor}
-          GRID_SIDE_LENGTH={gridSideLength} />
+          gridSideLength={gridSideLength} />
         <div style={{ flex: 1, height: '100%' }}>
           <div className={styles.sidebar}>
-            <div className={styles.sizeWrapper}>
+            <div className={styles.pushTopWrapper}>
               <div>
                 Size
               </div>
               <input
-                className={styles.sizeInput}
+                className={styles.sidebarInput}
                 type="number"
                 maxLength={2}
                 value={sizeInputField}
@@ -120,12 +82,34 @@ const Hoshi = () => {
                       const x = oldSize * diff;
                       newCellGrid.splice(-x, x);
                       for (let row = newSize; row > 0; row--) {
-                        newCellGrid.splice(row*oldSize-diff, diff);
+                        newCellGrid.splice(row * oldSize - diff, diff);
                       }
                       setCellGrid(newCellGrid);
                     }
                     setGridSideLength(newSize);
                   }
+                }} />
+              <div>
+                Preset
+              </div>
+              <input
+                className={styles.sidebarInput}
+                type="number"
+                maxLength={2}
+                value={presetInputField}
+                onChange={(e) => {
+                  const newValue = e.target.value.slice(0, 2);
+                  setPresetInputField(newValue);
+                  if (newValue <= 0 || newValue > presets.length) return;
+                  const preset = presets[newValue - 1];
+                  setGridSideLength(Math.sqrt(preset.length));
+                  setCellGrid(preset.map((cellId, index) => {
+                    return {
+                      index: index,
+                      state: EMPTY,
+                      ...selectedColor
+                    };
+                  }))
                 }} />
             </div>
             <div style={{ height: '0.2rem' }} />
@@ -143,7 +127,7 @@ const Hoshi = () => {
       <div style={{ flex: 1 }}>
         {!isReadyToSolve ?
           <EditPanel
-            GRID_SIDE_LENGTH={gridSideLength}
+            gridSideLength={gridSideLength}
             colorList={colorList}
             setColorList={setColorList}
             selectedColor={selectedColor}

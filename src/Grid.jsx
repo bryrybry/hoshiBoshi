@@ -11,8 +11,8 @@ export const EMPTY = 0;
 export const DOT = 1;
 export const STAR = 2;
 
-const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
-  const GRID_REAL_SIDE_LENGTH = GRID_SIDE_LENGTH * 2 + 1;
+const Grid = ({ cellGrid, setCellGrid, selectedColor, gridSideLength }) => {
+  const GRID_REAL_SIDE_LENGTH = gridSideLength * 2 + 1;
   const REAL_GRID_SIZE = GRID_REAL_SIDE_LENGTH * GRID_REAL_SIDE_LENGTH;
 
   const borderSize = 5 / (GRID_REAL_SIDE_LENGTH + 1) * 2;
@@ -66,7 +66,7 @@ const Grid = ({ cellGrid, setCellGrid, selectedColor, GRID_SIDE_LENGTH }) => {
         if (!isBorder) {
           const realCol = (col - 1) / 2;
           const realRow = (row - 1) / 2;
-          const cellIndex = realRow * GRID_SIDE_LENGTH + realCol;
+          const cellIndex = realRow * gridSideLength + realCol;
           return (
             <Cell
               key={index}

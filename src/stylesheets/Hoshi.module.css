@@ -45,15 +45,16 @@
     width: 2.5rem;
 }
 
-.sizeWrapper {
+.pushTopWrapper {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     color: white;
     font-size: 1rem;
+    align-items: center;
 }
 
-.sizeInput {
+.sidebarInput {
     width: 2.5rem;
     height: 1.5rem;
     font-size: 1rem;
@@ -65,31 +66,32 @@
     background: none;
 }
 
+.sidebarInput::-webkit-outer-spin-button,
+.sidebarInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.sidebarInput {
+    -moz-appearance: textfield;
+}
+
 .clearButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
 }
 
 .clearButton:hover {
-  transform: scale(1.1);
-}
-
-.sizeInput::-webkit-outer-spin-button,
-.sizeInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.sizeInput {
-  -moz-appearance: textfield;
+    transform: scale(1.1);
 }
 
 .solveButtonWrapper {

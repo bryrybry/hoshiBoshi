@@ -5,11 +5,11 @@ import styles from './stylesheets/ColorPanel.module.css'
 import seedrandom from 'seedrandom';
 import { IoGridOutline } from "react-icons/io5";
 
-const EditPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, setSelectedColor }) => {
+const EditPanel = ({ gridSideLength, colorList, setColorList, selectedColor, setSelectedColor }) => {
     return (
         <>
             <ColorPanel
-                GRID_SIDE_LENGTH={GRID_SIDE_LENGTH}
+                gridSideLength={gridSideLength}
                 colorList={colorList}
                 setColorList={setColorList}
                 selectedColor={selectedColor}
@@ -18,22 +18,22 @@ const EditPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, s
     )
 }
 
-const ColorPanel = ({ GRID_SIDE_LENGTH, colorList, setColorList, selectedColor, setSelectedColor }) => {
+const ColorPanel = ({ gridSideLength, colorList, setColorList, selectedColor, setSelectedColor }) => {
     function getNewCell(colorId, rng) {
         return {
             colorId,
             rgb: {
-                r: Math.floor(rng() * 255),
-                g: Math.floor(rng() * 255),
-                b: Math.floor(rng() * 255)
+                r: Math.floor(rng() * 256),
+                g: Math.floor(rng() * 256),
+                b: Math.floor(rng() * 256)
             }
         };
     }
     useEffect(() => {
         const rng = seedrandom('bryry');
-        const newColors = Array.from({ length: GRID_SIDE_LENGTH }, (_, index) => getNewCell(index, rng));
+        const newColors = Array.from({ length: gridSideLength }, (_, index) => getNewCell(index, rng));
         setColorList(newColors);
-    }, []);
+    }, [gridSideLength]);
 
     return (
         <div className={styles.colorPanel}>
